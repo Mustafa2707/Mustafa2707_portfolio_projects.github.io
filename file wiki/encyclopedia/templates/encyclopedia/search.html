@@ -1,0 +1,23 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Encyclopedia
+{% endblock %}
+{% block form %}
+    {% csrf_token %}{{form}}
+{% endblock %}
+
+{% block body %}
+
+<h1> Search results </h1>
+<ul>
+  
+  <h3>{{error}}</h3>
+    
+    {% for result in results %}
+      <li>
+        <a href= "{% url 'wiki:entry' title=result %}">{{result}}</a>
+      </li>
+    {% endfor %}
+</ul>
+{% endblock %}

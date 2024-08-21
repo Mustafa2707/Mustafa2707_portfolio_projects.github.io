@@ -1,0 +1,21 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    New Entry
+{% endblock %}
+
+{% block form %}
+    {% csrf_token %}{{form}}
+{% endblock %}
+
+{% block body %}
+    {% if error_message == ""%}
+        <form action="{% url 'wiki:new_entry'%}" method="post">
+            {% csrf_token %}
+            <input id="save_page" type="submit" value="SAVE", style="margin-left: 70%;">
+            {{NewPage}}
+        </form> 
+    {% else %}
+        {{error_message}}
+    {% endif %}
+{% endblock %}

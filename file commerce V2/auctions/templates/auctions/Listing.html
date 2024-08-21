@@ -1,0 +1,397 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    <style>
+        #left_section{
+            width:40%;
+            margin:3%;
+            float:inline-start
+        }
+        .list_box{
+            background-color:  rgb(229, 221, 221);
+            border:2px solid;
+            border-radius: 6px;
+            width: 100%;
+            height: 100px;
+            overflow-y: scroll;
+        }
+        .list_box #comment_item{
+            color:rgb(9, 193, 98);
+            float:inline-start;
+            width: 100%;  
+        }
+        #image{
+            margin: left auto;
+            margin: right auto;
+            display:block;
+            width: 100%;
+            height: 100%;
+            border:2px solid  rgb(146, 141, 141);
+            border-radius: 6px;
+        }
+        #right_section{
+            width: 50%;
+            margin:2%;
+            float:inline-start
+        }
+        #submit,#additional_images,#addimage,#hideDiv,#submitbid,#close_listing{
+            background-color: rgb(57, 187, 57);
+            color:white;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width:100%
+        }
+        #submit:hover,#additional_images:hover,#addimage:hover,#hideDiv:hover,#submitbid:hover,#close_listing:hover{
+            background-color: rgb(124, 215, 124);
+            color:Black;
+        }
+        .popupdivs{
+            display: none;
+        }
+        .popupbuttons,.closingbuttons{
+            margin:5%
+        }
+        #toggle_watchlist{
+            display:block;
+        }
+        #bottom_section{
+            margin:2%;
+            margin-right:20%;
+            width: 100%;
+            float: inline-start;
+        }
+        #bottom_section > #description{
+            border-radius: 5px;
+            border:2px solid;
+            text-align: left;
+        }
+        
+        /* image slideshow CSS */
+        * {box-sizing:border-box}
+
+        /* Slideshow container */
+        .image_container {
+        max-width: 1000px;
+        position: relative;
+        margin: auto;
+        }
+
+        .image {
+        display: block;
+        }
+
+        /* Next & previous buttons */
+        .prev, .next {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        width: auto;
+        margin-top: -22px;
+        padding: 16px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.6s ease;
+        border-radius: 0 3px 3px 0;
+        user-select: none;
+        }
+
+        /* Position the "next button" to the right */
+        .next {
+        right: 0;
+        border-radius: 3px 0 0 3px;
+        }
+
+        /* On hover, add a black background color with a little bit see-through */
+        .prev:hover, .next:hover {
+        background-color: rgba(0,0,0,0.8);
+        }
+
+        /* Caption text */
+        .text {
+        color: #f2f2f2;
+        font-size: 15px;
+        padding: 8px 12px;
+        position: absolute;
+        bottom: 8px;
+        width: 100%;
+        text-align: center;
+        }
+
+        /* The dots/bullets/indicators */
+        .dot {
+        cursor: pointer;
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbb;
+        border-radius: 50%;
+        display: inline-block;
+        transition: background-color 0.6s ease;
+        }
+
+        .active, .dot:hover {
+        background-color: #717171;
+        }
+
+        /* Fading animation 
+        .fade {
+        animation-name: fade;
+        animation-duration: 3s;
+        }
+
+        @keyframes fade {
+        from {opacity: .4}
+        to {opacity: 1}
+        }
+        */
+    </style>
+    <script>
+        // slideshow 
+        let slideIndex = 1;
+        let data = JSON.parse("{{data|escapejs}}")
+        let listingID = data['listing_id']
+        let userID = data["user_id"]
+
+        // Next/previous controls
+        function plusSlides(n) {
+        showSlides(slideIndex += n);
+        }
+
+        // Thumbnail image controls
+        function currentSlide(n) {
+        showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+        let i;
+        let slides = document.getElementsByClassName("image");
+        let dots = document.getElementsByClassName("dot");
+        if (n > slides.length) {slideIndex = 1}
+        if (n < 1) {slideIndex = slides.length}
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex-1].style.display = "block";
+        dots[slideIndex-1].className += " active";
+        }
+        //..
+
+        if (!localStorage.getItem('watchlist_button_name')){
+            localStorage.setItem('watchlist_button_name','Add To Watchlist')
+            localStorage.setItem('watchlist_button_color','rgb(57, 187, 57)')
+        }
+        
+        function ToggleWatchlist(){
+            const watchlist= document.querySelector('.toggle_watchlist');
+
+            if (localStorage.getItem('watchlist_button_name') === 'Add To Watchlist'){
+                localStorage.setItem('watchlist_button_name','Remove From Watchlist')
+                localStorage.setItem('watchlist_button_color','rgb(211, 23, 20)')
+                watchlist.innerHTML = localStorage.getItem('watchlist_button_name')
+                watchlist.style.backgroundColor = localStorage.getItem('watchlist_button_color')
+
+            }else if (localStorage.getItem('watchlist_button_name')  === 'Remove From Watchlist' ){
+                localStorage.setItem('watchlist_button_name','Add To Watchlist')
+                localStorage.setItem('watchlist_button_color','rgb(57, 187, 57)')
+                watchlist.innerHTML = localStorage.getItem('watchlist_button_name')
+                watchlist.style.backgroundColor = localStorage.getItem('watchlist_button_color')
+            }
+            
+        }
+        function showDiv(page) {
+
+            // Show the div provided in the argument
+            document.querySelector(`#${page}`).style.display = 'block';
+            }
+        function hideDiv(page){
+
+            document.querySelector(`#${page}`).style.display = 'none';
+        }
+
+        // Wait for page to loaded:
+        document.addEventListener('DOMContentLoaded', function() {
+            if(document.querySelector('.toggle_watchlist')){
+                document.querySelector('.toggle_watchlist').innerHTML = localStorage.getItem('watchlist_button_name');
+                document.querySelector('.toggle_watchlist').style.backgroundColor = localStorage.getItem('watchlist_button_color');
+                document.querySelector('.toggle_watchlist').onclick = ToggleWatchlist; 
+                if (!localStorage.getItem('display')){
+                    localStorage.setItem('display','block')
+                } 
+                document.querySelector('#Bid_status').style.display = localStorage.getItem('display')
+            
+            }
+
+            // slideshow functionality
+            showSlides(slideIndex);
+
+            // Select all buttons
+            document.querySelectorAll('.popup').forEach(button => {
+
+                button.onclick = function() {
+                    showDiv(this.dataset.page);
+                }
+            })
+            document.querySelectorAll('.closing').forEach(button => {
+
+                button.onclick = function() {
+                    hideDiv(this.dataset.page);
+                }
+            })
+            
+            document.querySelector('#submitbid').onclick = () =>{
+                document.querySelector('#Bid_status').style.display = localStorage.getItem('display');
+            }
+        });
+    </script>
+    <div id="page" style="width: 100%;">
+        <div id="left_section">
+            <!--IMAGE CAROSEL-->
+            <div class="image_container">
+                {% for image in images %}
+                    <div class="image">
+                        <img id="image" src="{{image.image}}" alt="{{image.listing.title}}">
+                        <div class="text">{{image.listing.title}}</div>
+                    </div>
+                {% endfor %}
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+            </div>
+            <br>
+            <div style="text-align:center">
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+            </div>
+            <!---->
+            <!--TODO: Bid List Functionality-->
+            <div class="list_box" >
+                <h5 style="text-align: left;margin-left:3px">INCOMING BIDS</h5>
+                <ul style="list-style-type: none;">
+                    {% for bid in Bids %}
+                        <div>
+                            <li id="comment_item">
+                                <div>
+                                    <h5>{{bid}}</h5>
+                                </div>
+                            </li>
+                        </div>
+                    {% endfor %}    
+                </ul>
+            </div>
+            <!---->
+            <div class="list_box" >
+                <h5 style="text-align: left;margin-left:3px">COMMENTS</h5>
+                <ul style="list-style-type: none;">
+                    {% for comment in comments %}
+                        <div>
+                            <li id="comment_item">
+                                <div>
+                                    <h5>{{comment}}</h5>
+                                </div>  
+                            </li>
+                        </div>
+                    {% endfor %}    
+                </ul>
+            </div>
+        </div>
+        <div id="right_section">
+            <div name="Title_and_details" style="text-align: justify;">
+                <h5>{{title}}</h5>
+                <p>{{listing.ModelYear}} {{listing.Model_Trim}} {{listing.condition}}</p>
+                {% if listing.isActive %}
+                <h6 style="color:aqua">ACTIVE</h6>
+                {% else %}
+                <h6 style="color:rgb(229, 48, 48)">CLOSED</h6>
+                {% endif %}           
+            </div>
+            <div id="Bid_status" class="popupdivs">
+                <div>
+                    {% if message %}
+                    <div><h6 style="color:rgb(57, 187, 57)">{{message}}</h6></div>
+                    {% elif error %}
+                    <div><h6 style="color:rgb(229, 48, 48)">{{error}}</h6></div>
+                    {% endif %}
+                </div>
+                <hr>
+            </div>
+            <hr>
+            <div name="pricing">
+                <h3>US ${{listing.starting_bid_price}}</h3>
+                <div style="color:rgb(186, 185, 185)">or Best Bid</div>
+                <hr>
+                <div><h5>Best Bid: US ${{maxBid.bid}}</h5></div>
+            </div>
+            <hr>
+            <!--change condition when section is complete-->
+            {% if user != listing.owner %}
+                <div>
+                    <div class="popupbuttons"><button data-page='popupdiv1' type="submit" class="btn btn-primary popup" id="submit">Make a Bid</button></div>
+                    <div name="bid" id="popupdiv1" class="popupdivs">
+                        <form action="{% url 'Place_Bid' listing_id=listing.id Bidder_id=user.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="bid">Make a Bid:</label>
+                                <input type="text" class="form-control" id="bid" aria-describedby="emailHelp" placeholder="Enter Your Bid" name="bid" autofocus>
+                            </div>
+                            <div class="closingbuttons"><button data-page='popupdiv1' type="submit" class="btn btn-primary closing" id="submitbid" >Place Bid</button></div>
+                        </form>
+                        <div class="closingbuttons"><button data-page='popupdiv1' type="submit" class="btn btn-primary closing" id="hideDiv" >CLOSE</button></div>
+                    </div>
+                    <div class="popupbuttons"><button data-page='popupdiv2' type="submit" class="btn btn-primary popup" id="submit" >Place a comment</button></div>
+                    <div name="comment" id="popupdiv2" class="popupdivs">
+                        <form action="{% url 'Place_Comment' listing_id=listing.id commenter_id=user.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="comment">Leave a comment:</label>
+                                <input type="text" class="form-control" id="comment" aria-describedby="emailHelp" placeholder="Leave a comment" name="comment" autofocus>
+                            </div>
+                            <div class="closingbuttons"><button data-page='popupdiv2' type="submit" class="btn btn-primary closing" id="submit">Comment</button></div>
+                        </form>
+                        <div class="closingbuttons"><button data-page='popupdiv2' type="submit" class="btn btn-primary closing" id="hideDiv" >CLOSE</button></div>
+                    </div>
+                    <div name="WatchList">
+                        <form method="post" action="{% url 'Toggle_Watchlist_status' listing_id=listing.id user_id=user.id %}" id="watchlistForm" name="watchlistForm">
+                            {% csrf_token %}
+                            <div class="popupbuttons"><button type="submit" class="btn btn-primary toggle_watchlist" id="submit" ></button></div>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="popupbuttons"><button data-page="add_additional_images" type="submit" class="btn btn-primary popup" id="additional_images" style="width: 100%;">Additional Images</button></div>
+                <div id="add_additional_images" class="popupdivs">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="addImage">Additional Images</label>
+                            <input type="text" class="form-control" id="addImage" aria-describedby="emailHelp" placeholder="Add Additional imageURL" name="addImage" autofocus>
+                        </div>
+                        <div class="closingbuttons"><button data-page="add_additional_images" type="submit" class="btn btn-primary closing" id="addimage" formaction="{% url 'Add_Image' listing_id=listing.id %}" >ADD</button></div>
+                    </form>
+                    <div class="closingbuttons"><button data-page="add_additional_images" type="submit" class="btn btn-primary closing" id="hideDiv" >CLOSE</button></div>
+                </div>
+                <div style="margin:5%"><button formaction="{% url 'Cart_Listing' listing_id=listing.id %}" class="btn btn-primary" id="close_listing" style="width: 100%;" type="submit">CLOSE LISTING</button></div>
+            {% endif %}
+            <div class="popupbuttons"><button data-page="description_div" type="submit" class="btn btn-primary popup" id="showDiv" style="width: 100%;background-color:rgb(198, 242, 242);border-color: rgb(39, 39, 224);color:black;border-radius: 8px;">Description</button></div>
+        </div>
+        <div id="bottom_section">
+            <div id="description_div" class="popupdivs">
+                <hr>
+                <div id="description">
+                    <section style="width: 100%;">
+                        <h5 style="text-align: center;" >ABOUT THIS PRODUCT</h5>
+                        {{listing.description}}
+                    </section>
+                </div>
+                <div class="closingbuttons"><button data-page="description_div" type="submit" class="btn btn-primary closing" id="hideDiv" style="width: 100%;background-color:rgb(198, 242, 242);border-color: rgb(39, 39, 224);color:black;border-radius: 8px;">CLOSE</button></div>
+                <hr>
+            </div>
+        </div>
+    </div>
+{% endblock %}

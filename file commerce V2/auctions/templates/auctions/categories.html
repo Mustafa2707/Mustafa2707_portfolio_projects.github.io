@@ -1,0 +1,54 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+<style>
+    .selections{
+        width:30%;
+        margin:2%;
+        float:inline-start;
+    }
+    #listings{
+        width:62%;
+        margin:2%;
+        float:inline-end;  
+    }
+    #submit{
+        background-color: rgb(57, 187, 57);
+        color:white;
+    }
+    #submit:hover{
+        background-color: rgb(124, 215, 124);
+        color:Black;
+    }
+</style>
+<h2>Categories</h2>
+<div>
+    <div class="selections">
+        <h6>Hold down the Ctrl (windows) or Command (Mac) button to select multiple options.</h3>
+        <form action="{% url 'display_categories' %}" method="post">
+            {% csrf_token %}
+            <div>
+                <label for="categories" style="width:100%">Choose a Category:</label>
+                <select name="categories[]" multiple>
+                    {% for category in categories %}
+                        <option value="{{category}}">{{category}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="subCategories" style="width:100%">Choose a Sub Category:</label>
+                <select name="subCategories[]" multiple>
+                    {% for subCategory in subCategories %}
+                        <option value="{{subCategory}}">{{subCategory}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submit">Find listing</button>
+        </form>
+    </div>
+    <div id="listings">
+        {% block listings %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

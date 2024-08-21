@@ -1,0 +1,161 @@
+{% extends "mail/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <style>
+        .email{
+            border:1px solid gray;
+            text-align: left;
+            color:white;
+            border-radius: 5px;
+        }
+        #email-body{
+            background-color: #d3d3d3;
+            border-radius: 5px;
+            padding-top:2%;
+            padding-left: .5%;
+            padding-right: .5%;
+            padding-bottom: .5%;
+            width: 100%;
+        }
+        #contents{
+            border: 1px ;
+            background-color: white;
+            border-radius: 10px;
+            padding: .5%;
+        }
+        .arrow {
+            border: solid black;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 3px;
+        }
+        .down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+        .popup_details{
+            font-size:15px;
+            width:100%;
+            padding:2%
+        }
+        /* Popup container */
+        .popup {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        /* The actual popup */
+        .popup .popuptext {
+            visibility: hidden;
+            width: 280px;
+            background-color: white;
+            color:black;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 0;
+            position: absolute;
+            z-index: 1;
+            top: 125%;
+            left: 50%;
+            margin-left: -80px;
+        }
+        #archive_popup{
+            visibility: hidden;
+            width: 100px;
+            background-color: black;
+            color:white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 0;
+            position: absolute;
+            z-index: 1;
+            top: 125%;
+            left: 50%;
+            margin-left: -80px;
+        }
+
+
+        /* Toggle this class when clicking on the popup container (hide and show the popup) */
+        .popup .show {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s
+        }
+    </style>
+    <h2>{{ request.user.email }}</h2>
+
+    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
+    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
+    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
+    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
+    <hr>
+
+    <div id="emails-view">  
+
+    </div>
+    
+    <div id="email-details">
+        <div id="email-body">
+            <div class="email_toggles" style="float: inline-end;">
+                <button style="background:transparent;border:transparent" id="archive_button" ><i class="material-icons">archive</i></button>
+            </div>
+            <div class="email_toggles" style="float: inline-end;">
+                <button style="background:transparent;border:transparent" id="reply_button" ><i class="material-icons">reply</i></button>
+            </div>
+            <h2 id="email-subject"></h2>
+            <div id="contents">
+                <div style="color:grey;font-size:15px" id="sender-div"></div>
+                <div style="width:100%;color:grey;font-size:15px;">
+                    <div style="float:inline-start;width:85%" id="recipients-div" >
+                        <div id="recipients" style="color:grey;float:inline-start;margin-right: 1%;">to me</div>
+                        <div  class="popup" onclick=recipientDetails() style="float:inline-start">
+                            <i class="arrow down" ></i>
+                            <div class="popuptext" id="myPopup">
+                                <div class="popup_details">
+                                    <div style="color:grey;width:20%;float:inline-start;text-align: left;">from: </div><div style="width:80%;float:inline-end;text-align: right;" class="p_sender"></div>
+                                </div>
+                                <div class="popup_details">
+                                    <div style="color:grey;width:20%;float:inline-start;text-align: left">to: </div><div style="width:80%;float:inline-end;text-align: right" id="p_recipients"></div>
+                                </div>
+                                <div class="popup_details">
+                                    <div style="color:grey;width:20%;float:inline-start;text-align: left">date: </div><div style="width:80%;float:inline-end;text-align: right" id="p_date"></div>
+                                </div>
+                                <div class="popup_details">
+                                    <div style="color:grey;width:20%;float:inline-start;text-align: left">subject: </div><div style="width:80%;float:inline-end;text-align: right" id="p_subject"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="float:inline-end;width:15%" id="timestamp-div"></div>
+                </div>
+                <div style="width:100%;padding-left:5%;padding-right:5%;padding-top:5%" id="body-div">
+
+                </div>
+            </div>      
+        </div>
+    </div>
+
+    <div id="compose-view">
+        <h3>New Email</h3>
+        <form id="compose-form">
+            <div class="form-group">
+                From: <input disabled class="form-control" value="{{ request.user.email }}">
+            </div>
+            <div class="form-group">
+                To: <input id="compose-recipients" class="form-control">
+            </div>
+            <div class="form-group">
+                <input class="form-control" id="compose-subject" placeholder="Subject">
+            </div>
+            <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
+            <input type="submit" class="btn btn-primary" id="form_submit">
+        </form>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'mail/inbox.js' %}"></script>
+{% endblock %}
